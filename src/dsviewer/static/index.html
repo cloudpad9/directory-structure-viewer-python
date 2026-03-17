@@ -119,7 +119,7 @@
            ===================================================================== */
         .left-pane {
             flex: 0 0 var(--left-width, 400px);
-            padding: 10px;
+            padding: 12px 14px;
             background-color: var(--color-canvas-subtle);
             border-right: 1px solid var(--color-border-default);
             box-sizing: border-box;
@@ -223,7 +223,7 @@
             font-size: 14px;
             font-weight: 500;
             line-height: 20px;
-            padding: 3px 10px;
+            padding: 5px 12px;
             border: 1px solid var(--color-neutral-btn-border);
             border-radius: 6px;
             background: var(--color-neutral-btn);
@@ -265,7 +265,7 @@
             font-family: inherit;
             font-size: 14px;
             line-height: 20px;
-            padding: 5px 12px;
+            padding: 5px 10px;
             border: 1px solid var(--color-border-default);
             border-radius: 6px;
             background: var(--color-canvas-default);
@@ -292,10 +292,10 @@
            File list (left pane)
            ===================================================================== */
         .clear-button { margin-left: 10px; padding: 2px 8px; font-size: 0.9em; }
-        .file-list { margin-top: 20px; }
-        .file-item { margin: 5px 0; display: flex; }
+        .file-list { margin-top: 16px; }
+        .file-item { margin: 2px 0; display: flex; align-items: center; min-height: 28px; }
         .file-item.directory label { text-decoration: underline; }
-        .file-item input[type="checkbox"] { margin-right: 5px; }
+        .file-item input[type="checkbox"] { margin-right: 6px; flex-shrink: 0; }
 
         /* =====================================================================
            Middle pane
@@ -305,23 +305,23 @@
             padding-left: 5px; padding-right: 10px;
             flex: 1;
         }
-        .selected-files ul { margin: 0; padding: 15px 0; list-style: none; }
-        .selected-files ul li { margin-bottom: 3px; word-break: break-word; }
-        .selected-files ul li label { flex: 1; width: 295px; white-space: nowrap; }
+        .selected-files ul { margin: 0; padding: 8px 0; list-style: none; }
+        .selected-files ul li { margin-bottom: 1px; word-break: break-word; }
+        .selected-files ul li label { flex: 1; width: 295px; white-space: nowrap; line-height: 28px; }
         .selected-files label.directory { text-decoration: underline; }
 
         .middle-pane__controls {
             background: var(--color-canvas-default);
             border-bottom: 1px solid var(--color-border-default);
-            padding: 6px 10px;
+            padding: 8px 12px;
         }
         .controls-row {
             display: flex;
             align-items: center;
-            padding: 4px 0;
-            gap: 5px;
+            padding: 3px 0;
+            gap: 6px;
         }
-        .controls-row label { min-width: 70px; color: var(--color-fg-muted); }
+        .controls-row label { min-width: 70px; color: var(--color-fg-muted); font-size: 13px; }
 
         /* =====================================================================
            Right pane — file content
@@ -334,7 +334,7 @@
             white-space: pre-wrap;
             overflow: auto;
             outline: none;
-            padding: 0 12px;
+            padding: 12px 16px;
             height: 100%;
             color: var(--color-fg-default);
         }
@@ -357,8 +357,8 @@
         /* =====================================================================
            Content blocks (level nesting)
            ===================================================================== */
-        .block-list { margin-left: 20px; }
-        .block-item { margin: 3px 0; }
+        .block-list { margin-left: 16px; margin-top: 2px; }
+        .block-item { margin: 2px 0; font-size: 13px; }
         .block-item.level-1 {
             border-left: 3px solid var(--color-accent-fg);
             background: var(--color-accent-subtle);
@@ -373,7 +373,24 @@
             border-radius: 0 4px 4px 0;
             margin-left: 40px;
         }
-        .small-button { margin-left: 5px; font-size: 0.8em; }
+        .small-button { margin-left: 4px; font-size: 12px; padding: 3px 8px; line-height: 20px; }
+
+        /* Remove (x) button trong selected-files list */
+        .selected-files .flex > button:last-child:not([class]) {
+            margin-left: 4px;
+            padding: 2px 7px;
+            font-size: 13px;
+            line-height: 20px;
+            color: var(--color-fg-muted);
+            background: transparent;
+            border-color: transparent;
+            flex-shrink: 0;
+        }
+        .selected-files .flex > button:last-child:not([class]):hover {
+            color: var(--color-danger-fg);
+            background: var(--color-danger-subtle);
+            border-color: transparent;
+        }
 
         /* =====================================================================
            Ace Editor
@@ -415,7 +432,7 @@
         .directory-tree {
             margin-top: 20px;
             font-family: var(--font-mono);
-            font-size: 13px;
+            font-size: 12px;
             background: var(--color-canvas-subtle);
             padding: 10px 12px;
             border: 1px solid var(--color-border-default);
@@ -429,13 +446,13 @@
         .sr-root {
             height: 100%;
             overflow: auto;
-            padding: 0 12px;
+            padding: 12px 16px;
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 13px;
             background: var(--color-canvas-default);
             color: var(--color-fg-default);
         }
-        .sr-file { margin-top: 14px; }
+        .sr-file { margin-top: 16px; }
         .sr-file-head { display: flex; align-items: baseline; gap: 6px; }
         .sr-collapser { width: 28px; cursor: pointer; color: var(--color-fg-muted); user-select: none; }
         .sr-path { color: var(--color-fg-link); text-decoration: underline; cursor: pointer; }
@@ -521,8 +538,9 @@
         .split-button .menu button {
             display: block; width: 100%; text-align: left;
             border: none; background: transparent;
-            padding: 6px 12px; margin: 0; cursor: pointer;
+            padding: 7px 14px; margin: 0; cursor: pointer;
             border-radius: 0;
+            font-size: 14px;
             color: var(--color-fg-default);
         }
         .split-button .menu button:hover:not(:disabled) {
@@ -822,16 +840,6 @@
             opacity: 0.5; cursor: not-allowed;
         }
 
-        /* =====================================================================
-           Scrollbar (webkit)
-           ===================================================================== */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-border-default);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: var(--color-fg-muted); }
 
     </style>
 </head>
