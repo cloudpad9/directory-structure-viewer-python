@@ -521,11 +521,15 @@
         .dark-mode-toggle {
             display: inline-flex;
             align-items: center; justify-content: center;
-            padding: 2px 6px; cursor: pointer;
+            /* padding thừa kế từ button base (5px 12px) — không override */
         }
-        .dark-mode-toggle svg { width: 18px; height: 18px; fill: currentColor; }
-        body.dark-mode .dark-mode-toggle svg { fill: #ffd700; stroke: #ffd700; }
-        .dark-mode-toggle:hover svg { opacity: 0.8; }
+        .dark-mode-toggle svg {
+            width: 16px; height: 16px;
+            fill: none; stroke: currentColor; stroke-width: 2;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+        body.dark-mode .dark-mode-toggle svg { stroke: #ffd700; }
+        .dark-mode-toggle:hover { opacity: 0.85; }
 
         /* =====================================================================
            SplitButton
@@ -891,7 +895,7 @@
                         placeholder="Enter directory path"
                         @delete-recent-path="requestDeleteRecentPath"
                     ></path-input>
-                    <button @click="analyzeDirectory" class="btn-primary" style="margin-left:6px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M.146 13.646a.5.5 0 0 0 .707.707L5.207 10l1.5 1.5-4.353 4.354a.5.5 0 0 0 .707.707L7.414 12l1.086 1.086L4.854 16.5H16V4.854L9.5 11.354l-1.086-1.085L12.354 6.2A6 6 0 1 0 .146 13.646ZM6 10a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/></svg>Analyze</button>
+                    <button @click="analyzeDirectory" class="btn-primary" style="margin-left:6px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.196 0 1.894 1.359 1.19 2.328L7.47 15.826a1.516 1.516 0 0 1-2.437-1.713L6.58 10.5H4.457c-1.196 0-1.894-1.359-1.19-2.328ZM5.845 9H7.5a.75.75 0 0 1 .637 1.145L6.5 12.948l4.655-5.948H9.5a.75.75 0 0 1-.637-1.145L10.5 3.054Z"/></svg>Analyze</button>
                 </div>
 
                 <div v-if="files.length > 0" class="file-list">
@@ -902,7 +906,7 @@
                             placeholder="Filter by keywords, ex: foo -bar"
                             class="flex-1"
                         ></input-clearable>
-                        <button @click="clearLeftPane" style="margin-left: 5px;">Clear</button>
+                        <button @click="clearLeftPane" style="margin-left:6px;white-space:nowrap;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215Z"/></svg>Clear</button>
                     </div>
                     <div v-for="file in filteredFiles" :key="file.path" class="file-item" :class="{directory: file.type == 'directory'}">
                         <input v-if="file.type === 'directory'"
@@ -973,7 +977,7 @@
                         class="flex-1"
                         @enter="runSearch"
                     ></input-clearable>
-                    <button @click="runSearch" style="width: 90px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11.5 7a4.499 4.499 0 1 0-8.997 0A4.499 4.499 0 0 0 11.5 7Z"/></svg>Search</button>
+                    <button @click="runSearch" style="white-space:nowrap;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11.5 7a4.499 4.499 0 1 0-8.997 0A4.499 4.499 0 0 0 11.5 7Z"/></svg>Search</button>
                 </div>
                 <!-- Replace row -->
                 <div class="controls-row gap-8">
@@ -983,7 +987,7 @@
                         class="flex-1"
                         @enter="runReplace"
                     ></input-clearable>
-                    <button @click="runReplace" style="width: 90px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.35.354-.809.575-1.298.6l-3.507.258a.75.75 0 0 1-.811-.811l.258-3.507a1.748 1.748 0 0 1 .6-1.298l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Zm-1.62 3.232L9.369 4.28 4.537 9.11l1.44 1.44Zm-7.517 3.43L3.61 10.87l-.899 3.127Z"/></svg>Replace</button>
+                    <button @click="runReplace" style="white-space:nowrap;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.35.354-.809.575-1.298.6l-3.507.258a.75.75 0 0 1-.811-.811l.258-3.507a1.748 1.748 0 0 1 .6-1.298l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354Zm-1.62 3.232L9.369 4.28 4.537 9.11l1.44 1.44Zm-7.517 3.43L3.61 10.87l-.899 3.127Z"/></svg>Replace</button>
                 </div>
                 <!-- Save to / Load from lists -->
                 <div class="controls-row gap-8">
@@ -1068,8 +1072,8 @@
 
         <div v-if="editingFile || searchResult !== null || replaceResult !== null || (mergeContent && mergeContent.length)" class="right-pane h-100vh">
             <div class="file-content-wrapper">
-                <button v-if="!editingFile && !searchResult && !replaceResult" @click="downloadMergeContent" class="copy" style="right: 70px;">Download</button>
-                <button v-if="!editingFile && !searchResult && !replaceResult" @click="copyMergeContent" class="copy">Copy</button>
+                <button v-if="!editingFile && !searchResult && !replaceResult" @click="downloadMergeContent" class="copy" style="right: 80px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.97a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.779a.749.749 0 1 1 1.06-1.06Z"/></svg>Download</button>
+                <button v-if="!editingFile && !searchResult && !replaceResult" @click="copyMergeContent" class="copy"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>Copy</button>
 
                 <ace-editor v-if="editingFile" v-model="editingContent" :path="editingFile" @save="saveContent"></ace-editor>
 
