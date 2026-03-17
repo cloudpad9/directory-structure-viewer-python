@@ -521,7 +521,9 @@
         .dark-mode-toggle {
             display: inline-flex;
             align-items: center; justify-content: center;
-            /* padding thừa kế từ button base (5px 12px) — không override */
+            /* SVG is 16px; base button line-height:20px + padding 5px×2 = 30px.
+               Use padding 7px so 7+16+7=30px matches sibling button height. */
+            padding: 7px 12px;
         }
         .dark-mode-toggle svg {
             width: 16px; height: 16px;
@@ -906,7 +908,7 @@
                             placeholder="Filter by keywords, ex: foo -bar"
                             class="flex-1"
                         ></input-clearable>
-                        <button @click="clearLeftPane" style="margin-left:6px;white-space:nowrap;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215Z"/></svg>Clear</button>
+                        <button @click="clearLeftPane" style="margin-left:6px;white-space:nowrap;"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:4px"><path d="M2.343 13.657A8 8 0 1 1 13.658 2.343 8 8 0 0 1 2.343 13.657ZM6.03 4.97a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L6.94 8 4.97 9.97a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L8 9.06l1.97 1.97a.749.749 0 0 0 1.275-.326.749.749 0 0 0-.215-.734L9.06 8l1.97-1.97a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L8 6.94Z"/></svg>Clear</button>
                     </div>
                     <div v-for="file in filteredFiles" :key="file.path" class="file-item" :class="{directory: file.type == 'directory'}">
                         <input v-if="file.type === 'directory'"
@@ -1072,8 +1074,10 @@
 
         <div v-if="editingFile || searchResult !== null || replaceResult !== null || (mergeContent && mergeContent.length)" class="right-pane h-100vh">
             <div class="file-content-wrapper">
-                <button v-if="!editingFile && !searchResult && !replaceResult" @click="downloadMergeContent" class="copy" style="right: 80px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.97a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.779a.749.749 0 1 1 1.06-1.06Z"/></svg>Download</button>
-                <button v-if="!editingFile && !searchResult && !replaceResult" @click="copyMergeContent" class="copy"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>Copy</button>
+                <div v-if="!editingFile && !searchResult && !replaceResult" style="position:absolute;top:5px;right:10px;z-index:1;display:flex;gap:6px;">
+                    <button @click="downloadMergeContent"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.97a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.779a.749.749 0 1 1 1.06-1.06Z"/></svg>Download</button>
+                    <button @click="copyMergeContent"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>Copy</button>
+                </div>
 
                 <ace-editor v-if="editingFile" v-model="editingContent" :path="editingFile" @save="saveContent"></ace-editor>
 
@@ -2428,7 +2432,7 @@
                 <div class="login-overlay">
                     <div class="login-dialog">
                         <header>
-                            <h2>🔐 Login Required</h2>
+                            <h2><svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" style="vertical-align:-3px;margin-right:8px"><path d="M4 4a4 4 0 0 1 8 0v2h.25c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-5.5C2 6.784 2.784 6 3.75 6H4Zm8.25 3.5h-8.5a.25.25 0 0 0-.25.25v5.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-5.5a.25.25 0 0 0-.25-.25ZM10.5 6V4a2.5 2.5 0 0 0-5 0v2Z"/></svg>Login</h2>
                         </header>
                         <div class="body">
                             <div v-if="error" class="error-message">
