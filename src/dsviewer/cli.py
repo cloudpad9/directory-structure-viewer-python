@@ -33,7 +33,35 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Interactive: change password for a user",
     )
+    p.add_argument(
+        "--update",
+        action="store_true",
+        help="Update dsviewer to the latest version from GitHub",
+    )
     return p
+
+
+def _run_update() -> None:
+    """Download và chạy update.sh từ GitHub."""
+    import subprocess
+    import urllib.request
+
+    UPDATE_URL = (
+        "https://raw.githubusercontent.com/"
+        "cloudpad9/directory-structure-viewer-python/main/update.sh"
+    )
+
+    print("  Fetching update script...")
+    try:
+        with urllib.request.urlopen(UPDATE_URL, timeout=10) as resp:  # noqa: S310
+            script = resp.read().decode("utf-8")
+    except Exception as exc:
+        print(f"  ERROR: Failed to download update script: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    # Chạy script qua bash
+    result = subprocess.run(["bash", "-s"], input=script.encode(), check=False)
+    sys.exit(result.returncode)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -54,6 +82,10 @@ def main(argv: list[str] | None = None) -> None:
         from dsviewer import auth as _auth
         _auth.set_config(config)
         run_interactive()
+        return
+
+    if args.update:
+        _run_update()
         return
 
     from dsviewer.server import run

@@ -7,15 +7,80 @@
     <title>Directory Structure Viewer</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap">
     <style>
+        /* =====================================================================
+           GitHub Design Tokens
+           ===================================================================== */
+        :root {
+            --color-canvas-default:   #ffffff;
+            --color-canvas-subtle:    #f6f8fa;
+            --color-canvas-inset:     #f6f8fa;
+            --color-border-default:   #d0d7de;
+            --color-border-muted:     #d8dee4;
+            --color-fg-default:       #1f2328;
+            --color-fg-muted:         #656d76;
+            --color-fg-link:          #0969da;
+            --color-accent-fg:        #0969da;
+            --color-accent-subtle:    #ddf4ff;
+            --color-success-fg:       #1a7f37;
+            --color-success-btn:      #1f883d;
+            --color-success-btn-hover:#1a7f37;
+            --color-success-subtle:   #dafbe1;
+            --color-danger-fg:        #d1242f;
+            --color-danger-emphasis:  #cf222e;
+            --color-danger-subtle:    #ffebe9;
+            --color-done-fg:          #8250df;
+            --color-done-subtle:      #fbefff;
+            --color-neutral-btn:      #f6f8fa;
+            --color-neutral-btn-hover:#eaeef2;
+            --color-neutral-btn-border:#d0d7de;
+            --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        body.dark-mode {
+            --color-canvas-default:   #0d1117;
+            --color-canvas-subtle:    #161b22;
+            --color-canvas-inset:     #010409;
+            --color-border-default:   #30363d;
+            --color-border-muted:     #21262d;
+            --color-fg-default:       #e6edf3;
+            --color-fg-muted:         #7d8590;
+            --color-fg-link:          #58a6ff;
+            --color-accent-fg:        #58a6ff;
+            --color-accent-subtle:    #1f3c5e;
+            --color-success-fg:       #3fb950;
+            --color-success-btn:      #238636;
+            --color-success-btn-hover:#2ea043;
+            --color-success-subtle:   #0d2b18;
+            --color-danger-fg:        #f85149;
+            --color-danger-emphasis:  #da3633;
+            --color-danger-subtle:    #3d0c09;
+            --color-done-fg:          #bc8cff;
+            --color-done-subtle:      #2e1a4a;
+            --color-neutral-btn:      #21262d;
+            --color-neutral-btn-hover:#30363d;
+            --color-neutral-btn-border:#30363d;
+        }
+
+        /* =====================================================================
+           Base
+           ===================================================================== */
         body {
-            font-family: Helvetica, Arial, Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+                         Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--color-fg-default);
+            background: var(--color-canvas-default);
             margin: 0;
             padding: 0;
             display: flex;
             overflow: hidden;
         }
+
+        /* =====================================================================
+           Layout helpers
+           ===================================================================== */
         .flex,
         .flex-first,
         .flex-last {
@@ -38,7 +103,9 @@
         .gap-8 { gap: 8px; }
         .h-100vh { height: 100vh; }
 
-        /* Base styles */
+        /* =====================================================================
+           App shell
+           ===================================================================== */
         #app {
             display: flex;
             flex: 1;
@@ -47,177 +114,205 @@
             height: 100vh;
         }
 
-        /* Left pane */
+        /* =====================================================================
+           Panes
+           ===================================================================== */
         .left-pane {
             flex: 0 0 var(--left-width, 400px);
             padding: 10px;
-            background-color: #f5f5f5;
-            border-right: 1px solid #ddd;
+            background-color: var(--color-canvas-subtle);
+            border-right: 1px solid var(--color-border-default);
             box-sizing: border-box;
             overflow-y: auto;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* Middle pane */
         .middle-pane {
             flex: 0 0 var(--middle-width, 460px);
             box-sizing: border-box;
             overflow: hidden;
             position: relative;
         }
-        /* Middle pane resize handle */
-        .resize-handle{
-            position:absolute; top:0; right:-4px; width:8px; height:100%;
+
+        .resize-handle {
+            position: absolute; top: 0; right: -4px; width: 8px; height: 100%;
             cursor: col-resize; z-index: 50; touch-action: none;
         }
-        .resize-handle::after{
-            content:''; position:absolute; top:0; bottom:0; left:3px; width:2px; background:#ddd;
+        .resize-handle::after {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 3px;
+            width: 2px; background: var(--color-border-default);
         }
-        .resize-handle:hover::after{ background:#bbb; }
-        .collapse-1 .resize-handle, .collapse-2 .resize-handle{ display:none; }
-        @media screen and (max-width: 768px){ .resize-handle{ display:none; } }
+        .resize-handle:hover::after { background: var(--color-fg-muted); }
+        .collapse-1 .resize-handle, .collapse-2 .resize-handle { display: none; }
+        @media screen and (max-width: 768px) { .resize-handle { display: none; } }
 
-        /* Right pane */
         .right-pane {
             flex: 1;
-            border-left: 1px solid #d9d9d9;
+            border-left: 1px solid var(--color-border-default);
             overflow-y: auto;
             min-width: 0;
+            background: var(--color-canvas-default);
         }
 
-        /* Mobile hamburger menu */
+        /* =====================================================================
+           Mobile
+           ===================================================================== */
         .mobile-menu-btn {
             display: none;
             position: fixed;
-            top: 10px;
-            left: 10px;
+            top: 10px; left: 10px;
             z-index: 3000;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
             padding: 8px 12px;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 1px 3px rgba(27,31,36,0.12);
         }
-
         .mobile-menu-btn span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background: #333;
-            margin: 4px 0;
-            transition: 0.3s;
-            border-radius: 2px;
+            display: block; width: 20px; height: 2px;
+            background: var(--color-fg-default);
+            margin: 4px 0; transition: 0.3s; border-radius: 2px;
         }
 
-        /* Responsive breakpoints */
         @media screen and (max-width: 1200px) {
-            .left-pane { flex: 0 0 var(--left-width, 300px); }
+            .left-pane   { flex: 0 0 var(--left-width, 300px); }
             .middle-pane { flex: 0 0 var(--middle-width, 360px); }
         }
-
         @media screen and (max-width: 992px) {
-            .left-pane { flex: 0 0 var(--left-width, 280px); }
+            .left-pane   { flex: 0 0 var(--left-width, 280px); }
             .middle-pane { flex: 0 0 var(--middle-width, 320px); }
-            .directory-tree {
-                display: none;
-            }
+            .directory-tree { display: none; }
         }
-
         @media screen and (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .mobile-hidden {
-                display: none;
-            }
-
-            #app {
-                flex-direction: column;
-            }
-
+            .mobile-menu-btn { display: block; }
+            .mobile-hidden   { display: none; }
+            #app { flex-direction: column; }
             .left-pane {
-                position: fixed;
-                top: 0;
-                left: -100%;
-                width: 85%;
-                max-width: 360px;
-                height: 100vh;
-                z-index: 2500;
-                transition: left 0.3s ease;
-                box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-                background-color: #f5f5f5;
+                position: fixed; top: 0; left: -100%;
+                width: 85%; max-width: 360px; height: 100vh;
+                z-index: 2500; transition: left 0.3s ease;
+                box-shadow: 2px 0 8px rgba(27,31,36,0.2);
+                background-color: var(--color-canvas-subtle);
             }
-
-            .left-pane.mobile-open {
-                left: 0;
-            }
-
-            /* Hamburger animation when open */
-            .mobile-menu-btn.active span:nth-child(1) {
-                transform: translateY(6px) rotate(45deg);
-            }
-
-            .mobile-menu-btn.active span:nth-child(2) {
-                opacity: 0;
-            }
-
-            .mobile-menu-btn.active span:nth-child(3) {
-                transform: translateY(-6px) rotate(-45deg);
-            }
-
-            .left-pane.mobile-open {
-                left: 0;
-            }
-
+            .left-pane.mobile-open { left: 0; }
+            .mobile-menu-btn.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+            .mobile-menu-btn.active span:nth-child(2) { opacity: 0; }
+            .mobile-menu-btn.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
             .middle-pane {
-                flex: 1;
-                width: 100%;
-                max-height: 40vh;
-                border-bottom: 1px solid #ddd;
+                flex: 1; width: 100%; max-height: 40vh;
+                border-bottom: 1px solid var(--color-border-default);
             }
-
             .right-pane {
-                flex: 1;
-                width: 100%;
+                flex: 1; width: 100%;
                 border-left: none;
-                border-top: 1px solid #d9d9d9;
+                border-top: 1px solid var(--color-border-default);
             }
-
-            .selected-files ul li label {
-                width: auto;
-                max-width: 200px;
-            }
-
-            .controls-row {
-                flex-wrap: wrap;
-            }
-
+            .selected-files ul li label { width: auto; max-width: 200px; }
+            .controls-row { flex-wrap: wrap; }
             .controls-row button,
-            .controls-row input {
-                font-size: 14px;
-                padding: 6px 10px;
-            }
+            .controls-row input { font-size: 14px; padding: 6px 10px; }
         }
 
+        /* =====================================================================
+           Global button & input base (GitHub style)
+           ===================================================================== */
+        button {
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            padding: 3px 10px;
+            border: 1px solid var(--color-neutral-btn-border);
+            border-radius: 6px;
+            background: var(--color-neutral-btn);
+            color: var(--color-fg-default);
+            cursor: pointer;
+            transition: background 80ms, border-color 80ms;
+        }
+        button:hover:not(:disabled) {
+            background: var(--color-neutral-btn-hover);
+            border-color: var(--color-border-default);
+        }
+        button:active:not(:disabled) {
+            background: var(--color-canvas-inset);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button:focus-visible {
+            outline: 2px solid var(--color-accent-fg);
+            outline-offset: 2px;
+        }
+
+        /* Primary (green) button — used via .btn-primary class */
+        .btn-primary {
+            background: var(--color-success-btn);
+            border-color: rgba(31,35,40,0.15);
+            color: #ffffff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: var(--color-success-btn-hover);
+            border-color: rgba(31,35,40,0.15);
+        }
+        .btn-primary:active:not(:disabled) {
+            background: var(--color-success-btn);
+        }
+
+        input, textarea, select {
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 20px;
+            padding: 5px 12px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            background: var(--color-canvas-default);
+            color: var(--color-fg-default);
+            box-sizing: border-box;
+            transition: border-color 80ms;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: 2px solid var(--color-accent-fg);
+            outline-offset: -1px;
+            border-color: var(--color-accent-fg);
+        }
+        input::placeholder { color: var(--color-fg-muted); }
+        input:disabled, textarea:disabled {
+            background: var(--color-canvas-subtle);
+            color: var(--color-fg-muted);
+            cursor: not-allowed;
+        }
+        input[type="checkbox"] { accent-color: var(--color-accent-fg); }
+        a { color: var(--color-fg-link); }
+        a:hover { text-decoration: underline; }
+
+        /* =====================================================================
+           File list (left pane)
+           ===================================================================== */
         .clear-button { margin-left: 10px; padding: 2px 8px; font-size: 0.9em; }
         .file-list { margin-top: 20px; }
         .file-item { margin: 5px 0; display: flex; }
         .file-item.directory label { text-decoration: underline; }
         .file-item input[type="checkbox"] { margin-right: 5px; }
-        .selected-files { overflow-x: hidden; padding-left: 5px; padding-right: 10px; flex: 1; }
-        .selected-files ul { margin: 0; padding: 15px 0; list-style: none; }
-        .selected-files ul li {
-            margin-bottom: 3px;
-            word-break: break-word;
+
+        /* =====================================================================
+           Middle pane
+           ===================================================================== */
+        .selected-files {
+            overflow-x: hidden;
+            padding-left: 5px; padding-right: 10px;
+            flex: 1;
         }
+        .selected-files ul { margin: 0; padding: 15px 0; list-style: none; }
+        .selected-files ul li { margin-bottom: 3px; word-break: break-word; }
         .selected-files ul li label { flex: 1; width: 295px; white-space: nowrap; }
+        .selected-files label.directory { text-decoration: underline; }
 
         .middle-pane__controls {
-            background: #fff;
-            border-bottom: 1px solid gray;
+            background: var(--color-canvas-default);
+            border-bottom: 1px solid var(--color-border-default);
             padding: 6px 10px;
         }
         .controls-row {
@@ -226,1034 +321,518 @@
             padding: 4px 0;
             gap: 5px;
         }
-        .controls-row label { min-width: 70px; color: #555; }
+        .controls-row label { min-width: 70px; color: var(--color-fg-muted); }
 
+        /* =====================================================================
+           Right pane — file content
+           ===================================================================== */
         .file-content-wrapper { height: 100%; position: relative; }
         .copy { position: absolute; top: 5px; right: 10px; margin: 5px; z-index: 1; }
         .file-content {
-            font-family: 'Roboto Mono', monospace;
+            font-family: var(--font-mono);
+            font-size: 13px;
             white-space: pre-wrap;
             overflow: auto;
             outline: none;
-            padding: 0 10px;
+            padding: 0 12px;
             height: 100%;
+            color: var(--color-fg-default);
         }
         textarea {
-            width: 100%; height: 100%; border: none; background: #f0f0f0;
-            box-sizing: border-box; overflow: auto; resize: none;
+            width: 100%; height: 100%;
+            border: none; border-radius: 0;
+            background: var(--color-canvas-subtle);
+            color: var(--color-fg-default);
+            box-sizing: border-box;
+            overflow: auto; resize: none;
+            font-family: var(--font-mono);
             font-size: 14px;
+            padding: 10px 12px;
         }
+        textarea:focus {
+            outline: none;
+            border: none;
+        }
+
+        /* =====================================================================
+           Content blocks (level nesting)
+           ===================================================================== */
         .block-list { margin-left: 20px; }
         .block-item { margin: 3px 0; }
-        .block-item.level-1 { background: #b4dbac; margin-left: 20px; }
-        .block-item.level-2 { background: pink; margin-left: 40px; }
+        .block-item.level-1 {
+            border-left: 3px solid var(--color-accent-fg);
+            background: var(--color-accent-subtle);
+            padding-left: 6px;
+            border-radius: 0 4px 4px 0;
+            margin-left: 20px;
+        }
+        .block-item.level-2 {
+            border-left: 3px solid var(--color-done-fg);
+            background: var(--color-done-subtle);
+            padding-left: 6px;
+            border-radius: 0 4px 4px 0;
+            margin-left: 40px;
+        }
         .small-button { margin-left: 5px; font-size: 0.8em; }
 
-        .ace_editor { font: 16px/normal 'Monaco','Menlo','Ubuntu Mono','Consolas','source-code-pro',monospace !important; }
-
+        /* =====================================================================
+           Ace Editor
+           ===================================================================== */
+        .ace_editor {
+            font: 14px/normal var(--font-mono) !important;
+        }
         @media screen and (max-width: 768px) {
-            .ace_editor {
-                font-size: 14px !important;
-            }
-            .file-content {
-                font-size: 13px;
-                padding: 0 5px;
-            }
-            .sr-root {
-                font-size: 13px;
-                padding: 0 5px;
-            }
-            textarea {
-                font-size: 13px;
-            }
+            .ace_editor { font-size: 13px !important; }
+            .file-content { font-size: 13px; padding: 0 5px; }
+            .sr-root { font-size: 13px; padding: 0 5px; }
+            textarea { font-size: 13px; }
         }
 
-        /* Dark mode styles */
-        body.dark-mode {
-            background: #202020;
-            color: #e0e0e0;
-        }
-        body.dark-mode .left-pane {
-            background-color: #1a1a1a;
-            border-right: 1px solid #333333;
-        }
-        body.dark-mode .middle-pane__controls {
-            background: #1a1a1a;
-            border-bottom: 1px solid #333333;
-        }
-        body.dark-mode .right-pane {
-            background: #202020;
-            border-left: 1px solid #333333;
-        }
-        body.dark-mode .directory-tree {
-            background-color: #1e1e1e;
-            border: 1px solid #333333;
-            color: #e0e0e0;
-        }
-        body.dark-mode textarea {
-            background: #1e1e1e;
-            color: #e0e0e0;
-            border: 1px solid #333333;
-        }
-        body.dark-mode textarea:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: -1px;
-            border-color: #3b82f6;
-        }
-        body.dark-mode button {
-            background: #222222;
-            color: #e0e0e0;
-            border: 1px solid #404040;
-        }
-        body.dark-mode button:hover:not(:disabled) {
-            background: #333333;
-            border-color: #525252;
-        }
-        body.dark-mode button:active:not(:disabled) {
-            background: #1e1e1e;
-            border-color: #404040;
-        }
-        body.dark-mode button:disabled {
-            background: #1a1a1a;
-            color: #666666;
-            border-color: #2a2a2a;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        /* Primary action buttons - Dark mode */
-        body.dark-mode button:focus-visible {
-            outline: 2px solid #3b82f6;
-            outline-offset: 2px;
-        }
-
-        body.dark-mode input {
-            background: #1e1e1e;
-            color: #e0e0e0;
-            border: 1px solid #404040;
-        }
-
-        body.dark-mode input:hover:not(:disabled) {
-            border-color: #525252;
-        }
-        body.dark-mode input:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: -1px;
-            border-color: #3b82f6;
-            background: #262626;
-        }
-        body.dark-mode input::placeholder {
-            color: #737373;
-        }
-        body.dark-mode input:disabled {
-            background: #1a1a1a;
-            color: #525252;
-            border-color: #2a2a2a;
-        }
-
-        /* Checkbox - Dark mode */
-        body.dark-mode input[type="checkbox"] {
-            accent-color: #3b82f6;
-        }
-
-        /* Links - Dark mode */
-        body.dark-mode a {
-            color: #60a5fa;
-        }
-        body.dark-mode a:hover {
-            color: #93c5fd;
-        }
-
-        /* Resize handle - Dark mode */
-        body.dark-mode .resize-handle::after {
-            background: #333333;
-        }
-        body.dark-mode .resize-handle:hover::after {
-            background: #525252;
-        }
-
-        /* Mobile menu button - Dark mode */
-        body.dark-mode .mobile-menu-btn {
-            background: #1a1a1a;
-            border-color: #404040;
-        }
-        body.dark-mode .mobile-menu-btn span {
-            background: #e0e0e0;
-        }
-
-        /* File content - Dark mode */
-        body.dark-mode .file-content {
-            color: #e0e0e0;
-        }
-
-        /* Search results - Dark mode */
-        body.dark-mode .sr-root {
-            background: #1e1e1e;
-            color: #e0e0e0;
-        }
-        body.dark-mode .sr-path {
-            color: #60a5fa;
-        }
-        body.dark-mode .sr-hit {
-            color: #fca5a5;
-            background: #7f1d1d;
-            padding: 2px 4px;
-            border-radius: 2px;
-        }
-
-        /* Labels - Dark mode */
-        body.dark-mode label {
-            color: #e0e0e0;
-         }
-        /* Dark mode toggle button */
-        .dark-mode-toggle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px 6px;
-            cursor: pointer;
-        }
-        .dark-mode-toggle svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
-        body.dark-mode .dark-mode-toggle svg {
-            fill: #ffd700;
-            stroke: #ffd700;
-        }
-        .dark-mode-toggle:hover svg {
-            opacity: 0.8;
-        }
-        /* Toast - Dark mode */
-        body.dark-mode .toast {
-            background: #1e1e1e;
-            border-color: #404040;
-            color: #e0e0e0;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        body.dark-mode .toast.info {
-            border-left-color: #3b82f6;
-        }
-        body.dark-mode .toast.success {
-            border-left-color: #10b981;
-        }
-        body.dark-mode .toast.warn {
-            border-left-color: #f59e0b;
-        }
-        body.dark-mode .toast.error {
-            border-left-color: #ef4444;
-        }
-        body.dark-mode .toast .close {
-            color: #b8b8b8;
-        }
-        body.dark-mode .toast .close:hover {
-            color: #e0e0e0;
-        }
-
-        /* Notification dialog - Dark mode */
-        body.dark-mode .notification-overlay > div:first-child {
-            background: rgba(0,0,0,0.75);
-        }
-        body.dark-mode .notification-overlay > div:last-child {
-            background: #1e1e1e;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-        }
-        body.dark-mode .notification-overlay header {
-            border-bottom-color: #333333;
-        }
-        body.dark-mode .notification-overlay header button {
-            background: #262626;
-            border-color: #404040;
-            color: #e0e0e0;
-        }
-        body.dark-mode .notification-overlay pre {
-            background: #202020;
-            color: #e0e0e0;
-            border: 1px solid #333333;
-        }
-
-        /* Split button menu - Dark mode */
-        body.dark-mode .split-button .menu {
-            background: #1e1e1e;
-            border-color: #404040;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-        }
-        body.dark-mode .split-button .menu button:hover:not(:disabled) {
-            background: #2a2a2a;
-        }
-        body.dark-mode .split-button .menu button:disabled {
-            color: #525252;
-        }
-
-        /* Path menu - Dark mode */
-        body.dark-mode .path-menu {
-            background: #1e1e1e;
-            border-color: #404040;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-        }
-        body.dark-mode .path-menu li button:hover {
-            background: #2a2a2a;
-        }
-        body.dark-mode .path-menu li button:focus-visible {
-            background: #1e3a5f;
-        }
-        body.dark-mode .path-input .drop-btn:hover {
-            background: rgba(255,255,255,0.08);
-        }
-
-        /* List picker dialog - Dark mode */
-        body.dark-mode .notification-overlay footer {
-            border-top-color: #333333;
-        }
-        body.dark-mode .notification-overlay footer button:last-child {
-            background: #1e40af;
-            border-color: #1e40af;
-        }
-        body.dark-mode .notification-overlay footer button:last-child:hover:not(:disabled) {
-            background: #1e3a8a;
-            border-color: #1e3a8a;
-        }
-        body.dark-mode .notification-overlay footer button:first-child {
-            background: #262626;
-            border-color: #404040;
-        }
-
-        /* Rename & Delete Dialog */
-        .confirm-dialog-overlay {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2300;
-        }
-        .confirm-dialog-overlay > .backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-        }
-        .confirm-dialog {
-            position: relative;
-            width: min(460px, 90vw);
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .confirm-dialog header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .confirm-dialog header h3 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        .confirm-dialog header button {
-            font-size: 24px;
-            line-height: 1;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            color: #666;
-        }
-        .confirm-dialog header button:hover {
-            background: #f5f5f5;
-            color: #333;
-        }
-        .confirm-dialog .body {
-            padding: 20px;
-        }
-        .confirm-dialog .body p {
-            margin: 0 0 16px 0;
-            color: #333;
-            line-height: 1.5;
-        }
-        .confirm-dialog .body input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        .confirm-dialog .body input:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: -1px;
-            border-color: #3b82f6;
-        }
-        .confirm-dialog footer {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            padding: 16px 20px;
-            border-top: 1px solid #eee;
-        }
-        .confirm-dialog footer button {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid;
-            transition: all 0.15s;
-        }
-        .confirm-dialog footer button.cancel {
-            background: #fff;
-            border-color: #ddd;
-            color: #333;
-        }
-        .confirm-dialog footer button.cancel:hover {
-            background: #f5f5f5;
-            border-color: #ccc;
-        }
-        .confirm-dialog footer button.primary {
-            background: #3b82f6;
-            border-color: #3b82f6;
-            color: #fff;
-        }
-        .confirm-dialog footer button.primary:hover:not(:disabled) {
-            background: #2563eb;
-            border-color: #2563eb;
-        }
-        .confirm-dialog footer button.danger {
-            background: #ef4444;
-            border-color: #ef4444;
-            color: #fff;
-        }
-        .confirm-dialog footer button.danger:hover:not(:disabled) {
-            background: #dc2626;
-            border-color: #dc2626;
-        }
-        .confirm-dialog footer button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Dark mode for dialogs */
-        body.dark-mode .confirm-dialog {
-            background: #1e1e1e;
-        }
-        body.dark-mode .confirm-dialog header {
-            border-bottom-color: #333;
-        }
-        body.dark-mode .confirm-dialog header h3 {
-            color: #e0e0e0;
-        }
-        body.dark-mode .confirm-dialog header button {
-            color: #b8b8b8;
-        }
-        body.dark-mode .confirm-dialog header button:hover {
-            background: #2a2a2a;
-            color: #e0e0e0;
-        }
-        body.dark-mode .confirm-dialog .body p {
-            color: #e0e0e0;
-        }
-        body.dark-mode .confirm-dialog .body input {
-            background: #2a2a2a;
-            border-color: #404040;
-            color: #e0e0e0;
-        }
-        body.dark-mode .confirm-dialog .body input:focus {
-            background: #2a2a2a;
-            border-color: #3b82f6;
-        }
-        body.dark-mode .confirm-dialog footer {
-            border-top-color: #333;
-        }
-        body.dark-mode .confirm-dialog footer button.cancel {
-            background: #2a2a2a;
-            border-color: #404040;
-            color: #e0e0e0;
-        }
-        body.dark-mode .confirm-dialog footer button.cancel:hover {
-            background: #333;
-            border-color: #525252;
-        }
-        body.dark-mode .confirm-dialog footer button.primary {
-            background: #1e40af;
-            border-color: #1e40af;
-        }
-        body.dark-mode .confirm-dialog footer button.primary:hover:not(:disabled) {
-            background: #1e3a8a;
-            border-color: #1e3a8a;
-        }
-        body.dark-mode .confirm-dialog footer button.danger {
-            background: #dc2626;
-            border-color: #dc2626;
-        }
-        body.dark-mode .confirm-dialog footer button.danger:hover:not(:disabled) {
-            background: #b91c1c;
-            border-color: #b91c1c;
-        }
-        /* Notification overlay - refactored from inline styles */
-        .notification-overlay {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1200;
-        }
-        .notification-overlay .backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-        }
-        .notification-overlay .dialog {
-            position: relative;
-            max-width: 90%;
-            max-height: 90%;
-            min-width: 468px;
-            background: #fff;
-            border-radius: 2px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            z-index: 1201;
-        }
-        .notification-overlay .dialog-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            border-bottom: 1px solid #eee;
-        }
-        .notification-overlay .dialog-header-title {
-            font-weight: 600;
-        }
-        .notification-overlay .dialog-body {
-            padding: 12px 16px;
-            overflow: auto;
-            flex: 1;
-            background: #fff;
-        }
-        .notification-overlay .dialog-body pre {
-            white-space: pre-wrap;
-            word-break: break-word;
-            font-family: monospace;
-            font-size: 15px;
-            margin: 0;
-            padding: 8px;
-            border-radius: 4px;
-        }
-
-        /* Dark mode for notification overlay */
-        body.dark-mode .notification-overlay .backdrop {
-            background: rgba(0, 0, 0, 0.75);
-        }
-        body.dark-mode .notification-overlay .dialog {
-            background: #1e1e1e;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-        }
-        body.dark-mode .notification-overlay .dialog-header {
-            border-bottom-color: #333333;
-        }
-        body.dark-mode .notification-overlay .dialog-header-title {
-            color: #e0e0e0;
-        }
-        body.dark-mode .notification-overlay .dialog-body {
-            background: #1e1e1e;
-        }
-        body.dark-mode .notification-overlay .dialog-body pre {
-            background: #202020;
-            color: #e0e0e0;
-            border: 1px solid #333333;
-        }
-
-        /* Scrollbar - Dark mode (optional, for webkit browsers) */
-        body.dark-mode ::-webkit-scrollbar {
-            width: 12px;
-            height: 12px;
-        }
-        body.dark-mode ::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-        body.dark-mode ::-webkit-scrollbar-thumb {
-            background: #404040;
-            border-radius: 6px;
-            border: 2px solid #1a1a1a;
-        }
-        body.dark-mode ::-webkit-scrollbar-thumb:hover {
-            background: #525252;
-        }
-        /* Collapse levels */
+        /* =====================================================================
+           Collapse levels
+           ===================================================================== */
         .expand-button { display: none; }
-        .collapse-1 .left-pane { flex: 0 0 28px; cursor: pointer; justify-content: center; align-items: center; display: flex; }
+        .collapse-1 .left-pane {
+            flex: 0 0 28px; cursor: pointer;
+            justify-content: center; align-items: center; display: flex;
+        }
         .collapse-1 .left-pane > * { display: none; }
         .collapse-1 .left-pane > .expand-button,
         .collapse-2 .left-pane > .expand-button { display: block; }
         .collapse-2 .middle-pane { flex: 0 0 0; }
         .collapse-2 .middle-pane > * { display: none; }
-
-        .directory-tree { margin-top: 20px; font-family: monospace; font-size: 14px; background-color: #f9f9f9; padding: 10px; border: 1px solid #ddd; }
-
         @media screen and (max-width: 768px) {
             .collapse-1 .left-pane,
             .collapse-2 .left-pane,
             .collapse-2 .middle-pane {
-                position: static;
-                flex: initial;
-            }
-            body.collapse-1,
-            body.collapse-2 {
-                /* Disable collapse on mobile */
+                position: static; flex: initial;
             }
         }
 
-        /* Search Results styles */
+        /* =====================================================================
+           Directory tree
+           ===================================================================== */
+        .directory-tree {
+            margin-top: 20px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            background: var(--color-canvas-subtle);
+            padding: 10px 12px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            color: var(--color-fg-default);
+        }
+
+        /* =====================================================================
+           Search results
+           ===================================================================== */
         .sr-root {
             height: 100%;
             overflow: auto;
-            padding: 0 10px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 15px;
-            background: #f7f3d6; /* nền vàng nhạt như ảnh */
+            padding: 0 12px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            background: var(--color-canvas-default);
+            color: var(--color-fg-default);
         }
-        .sr-file { margin-top: 12px; }
+        .sr-file { margin-top: 14px; }
         .sr-file-head { display: flex; align-items: baseline; gap: 6px; }
-        .sr-collapser { width: 28px; cursor: pointer; color: #000; user-select: none; }
-        .sr-path { color: #06c; text-decoration: underline; cursor: pointer; }
+        .sr-collapser { width: 28px; cursor: pointer; color: var(--color-fg-muted); user-select: none; }
+        .sr-path { color: var(--color-fg-link); text-decoration: underline; cursor: pointer; }
         .sr-preview { margin-left: 10px; white-space: pre; overflow: hidden; }
-        .sr-hit { color: #c00; font-weight: bold; }
-        .sr-summary { margin-top: 12px; }
+        .sr-hit {
+            color: var(--color-accent-fg);
+            background: var(--color-accent-subtle);
+            font-weight: 600;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+        .sr-summary { margin-top: 12px; color: var(--color-fg-muted); }
 
-        /* Toast notifications (top-right) */
-        .toast-container{
-            position:fixed; top:16px; right:16px; z-index:1300;
-            display:flex; flex-direction:column; gap:8px;
-            pointer-events:none;
+        /* =====================================================================
+           Toast notifications
+           ===================================================================== */
+        .toast-container {
+            position: fixed; top: 16px; right: 16px; z-index: 1300;
+            display: flex; flex-direction: column; gap: 8px;
+            pointer-events: none;
         }
-        .toast{
-            pointer-events:auto;
-            display:flex; align-items:flex-start; gap:10px;
-            min-width:280px; max-width:420px;
-            padding:10px 12px; background:#fff;
-            border:1px solid #e5e7eb; border-radius:6px;
-            box-shadow:0 10px 20px rgba(0,0,0,0.15);
-            animation:toast-in .15s ease;
-            word-break: break-word;
-        }
-        .toast .title{ font-weight:600; margin-right:6px; }
-        .toast .msg{ white-space:pre-wrap; word-break:break-word; }
-        .toast .close{ margin-left:auto; background:transparent; border:none; cursor:pointer; font-size:16px; line-height:1; }
-        .toast.info{ border-left:4px solid #3b82f6; }
-        .toast.success{ border-left:4px solid #16a34a; }
-        .toast.warn{ border-left:4px solid #f59e0b; }
-        .toast.error{ border-left:4px solid #ef4444; }
-        @keyframes toast-in{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);} }
-
-        @media screen and (max-width: 768px) {
-            .toast-container {
-                top: 8px;
-                right: 8px;
-            }
-            .toast {
-                min-width: 240px;
-                max-width: calc(100vw - 32px);
-            }
-        }
-
-        /* SplitButton */
-        .split-button { display:inline-flex; position:relative; margin-left:5px; }
-        .split-button .menu{
-            position:absolute; top:100%; right:0; z-index:50; min-width:160px;
-            margin:0; padding:6px 0; list-style:none;
-            background:#fff; border:1px solid #ddd; border-radius:6px;
-            box-shadow:0 8px 16px rgba(0,0,0,0.12);
-        }
-        .split-button .menu button{
-            display:block; width:100%; text-align:left;
-            border:none; background:transparent; padding:8px 12px; margin:0; cursor:pointer;
-        }
-        .split-button .small-button {
-            margin-left: -1px;
-        }
-        /* giữ phần .split-button và .menu cũ của anh */
-        .split-button .menu { top:auto; bottom:auto; }  /* reset mặc định */
-        .split-button .menu.drop-down { top:100%; }
-        .split-button .menu.drop-up   { bottom:100%; }
-
-        /* option: giới hạn chiều cao + scroll nếu chật */
-        .split-button .menu { max-height: 320px; overflow-y: auto; }
-
-        /* ===== PathInput ===== */
-        .path-input { position: relative; display: block; }
-
-        /* hàng chứa input + nút */
-        .path-input .row {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        /* input: chừa chỗ cho nút tam giác */
-        .path-input input {
-            flex: 1;
-            padding-right: 28px;
-            box-sizing: border-box;
-        }
-
-        /* nút tam giác ▼ đặt absolute trong .row */
-        .path-input .drop-btn {
-            position: absolute;
-            right: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            line-height: 1;
-            font-size: 14px;           /* đủ lớn để bấm */
-            width: 22px; height: 22px; /* hit area tối thiểu */
-            padding: 0;
-            border-radius: 3px;
-        }
-        .path-input .drop-btn:hover { background: rgba(0,0,0,0.06); }
-        .path-input .drop-btn:focus-visible {
-            outline: 2px solid #2684ff;
-            outline-offset: 1px;
-        }
-
-        /* ===== Path menu (teleport to body, position:fixed set bằng inline style) ===== */
-        .path-menu {
-            position: fixed;           /* tọa độ set bởi JS */
-            z-index: 2000;
-            margin: 0;
-            padding: 6px 0;
-            list-style: none;
-            min-width: 160px;          /* sẽ bị override bằng minWidth inline theo input */
-            background: #fff;
-            border: 1px solid #ddd;
+        .toast {
+            pointer-events: auto;
+            display: flex; align-items: flex-start; gap: 10px;
+            min-width: 280px; max-width: 420px;
+            padding: 10px 14px;
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
             border-radius: 6px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
-            overflow-y: auto;          /* max-height set inline */
+            box-shadow: 0 8px 24px rgba(27,31,36,0.12);
+            animation: toast-in .15s ease;
+            word-break: break-word;
+            font-size: 14px;
+        }
+        .toast .title { font-weight: 600; margin-right: 6px; }
+        .toast .msg { white-space: pre-wrap; word-break: break-word; }
+        .toast .close {
+            margin-left: auto; background: transparent;
+            border: none; cursor: pointer; font-size: 16px; line-height: 1;
+            color: var(--color-fg-muted);
+        }
+        .toast .close:hover { color: var(--color-fg-default); }
+        .toast.info    { border-left: 3px solid var(--color-accent-fg); }
+        .toast.success { border-left: 3px solid var(--color-success-fg); }
+        .toast.warn    { border-left: 3px solid #9a6700; }
+        .toast.error   { border-left: 3px solid var(--color-danger-fg); }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @media screen and (max-width: 768px) {
+            .toast-container { top: 8px; right: 8px; }
+            .toast { min-width: 240px; max-width: calc(100vw - 32px); }
         }
 
-        /* item */
-        .path-menu li { margin: 0; }
-        .path-menu li button{
-            white-space: normal;       /* bỏ nowrap */
-            overflow: visible;         /* không cắt */
-            text-overflow: clip;       /* không dùng ellipsis */
-            overflow-wrap: anywhere;   /* wrap khi cần */
-            word-break: break-word;
+        /* =====================================================================
+           Dark mode toggle
+           ===================================================================== */
+        .dark-mode-toggle {
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            padding: 2px 6px; cursor: pointer;
+        }
+        .dark-mode-toggle svg { width: 18px; height: 18px; fill: currentColor; }
+        body.dark-mode .dark-mode-toggle svg { fill: #ffd700; stroke: #ffd700; }
+        .dark-mode-toggle:hover svg { opacity: 0.8; }
+
+        /* =====================================================================
+           SplitButton
+           ===================================================================== */
+        .split-button { display: inline-flex; position: relative; margin-left: 5px; }
+        .split-button .menu {
+            position: absolute; top: 100%; right: 0; z-index: 50;
+            min-width: 160px; max-height: 320px; overflow-y: auto;
+            margin: 0; padding: 4px 0; list-style: none;
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.12);
+        }
+        .split-button .menu.drop-down { top: 100%; }
+        .split-button .menu.drop-up   { bottom: 100%; }
+        .split-button .menu button {
+            display: block; width: 100%; text-align: left;
+            border: none; background: transparent;
+            padding: 6px 12px; margin: 0; cursor: pointer;
+            border-radius: 0;
+            color: var(--color-fg-default);
+        }
+        .split-button .menu button:hover:not(:disabled) {
+            background: var(--color-canvas-subtle);
+            border-color: transparent;
+        }
+        .split-button .menu button:disabled { color: var(--color-fg-muted); }
+        .split-button .small-button { margin-left: -1px; }
+
+        /* =====================================================================
+           PathInput
+           ===================================================================== */
+        .path-input { position: relative; display: block; }
+        .path-input .row { position: relative; display: flex; align-items: center; }
+        .path-input input { flex: 1; padding-right: 28px; box-sizing: border-box; }
+        .path-input .drop-btn {
+            position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+            border: none; background: transparent; cursor: pointer;
+            line-height: 1; font-size: 14px;
+            width: 22px; height: 22px; padding: 0; border-radius: 4px;
+        }
+        .path-input .drop-btn:hover { background: rgba(27,31,36,0.08); }
+        body.dark-mode .path-input .drop-btn:hover { background: rgba(255,255,255,0.08); }
+        .path-input .drop-btn:focus-visible {
+            outline: 2px solid var(--color-accent-fg); outline-offset: 1px;
+        }
+
+        /* =====================================================================
+           Path menu
+           ===================================================================== */
+        .path-menu {
+            position: fixed; z-index: 2000;
+            margin: 0; padding: 4px 0; list-style: none;
+            min-width: 160px;
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.12);
+            overflow-y: auto;
+        }
+        .path-menu li { margin: 0; position: relative; }
+        .path-menu li button {
+            white-space: normal; overflow: visible; text-overflow: clip;
+            overflow-wrap: anywhere; word-break: break-word;
             line-height: 1.25;
         }
-
-        @media screen and (max-width: 768px) {
-            .path-input input {
-                font-size: 14px;
-                padding: 6px 28px 6px 8px;
-            }
-
-            button {
-                font-size: 14px;
-                padding: 6px 10px;
-                touch-action: manipulation;
-            }
-
-            input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                cursor: pointer;
-            }
-
-            .small-button {
-                font-size: 12px;
-                padding: 4px 8px;
-            }
-
-            .file-item label {
-                font-size: 14px;
-                cursor: pointer;
-            }
-        }
-        .path-menu li button:hover { background: #f2f4f7; }
+        .path-menu li button:hover { background: var(--color-canvas-subtle); }
         .path-menu li button:focus-visible {
-            outline: 2px solid #2684ff;
+            outline: 2px solid var(--color-accent-fg);
             outline-offset: -2px;
-            background: #eef4ff;
+            background: var(--color-accent-subtle);
         }
         .path-menu li button:disabled {
-            color: #999;
-            cursor: default;
-            background: transparent;
+            color: var(--color-fg-muted); cursor: default; background: transparent;
         }
-
-        /* Delete button for recent paths */
-        .path-menu li {
-            position: relative;
-        }
-        .path-menu li .path-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .path-menu li .path-item { display: flex; align-items: center; gap: 4px; }
         .path-menu li .path-item .path-text {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .path-menu li .delete-btn {
-            opacity: 0;
-            padding: 2px 6px;
-            font-size: 14px;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        .path-menu li:hover .delete-btn {
-            opacity: 1;
-        }
-        /* tùy chọn: theme tối (nếu body có .dark) */
-        .dark .path-menu {
-            background: #1f1f1f;
-            border-color: #2a2a2a;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.35);
-        }
-        .dark .path-menu li button:hover { background: #2a2a2a; }
-        .dark .path-input .drop-btn:hover { background: rgba(255,255,255,0.08); }
-        .dark .path-menu li .delete-btn:hover {
-            background: #dc2626;
+        .path-menu li .delete-btn { opacity: 0; padding: 2px 6px; font-size: 14px; font-weight: bold; flex-shrink: 0; }
+        .path-menu li:hover .delete-btn { opacity: 1; }
+
+        @media screen and (max-width: 768px) {
+            .path-input input { font-size: 14px; padding: 6px 28px 6px 8px; }
+            button { font-size: 14px; padding: 6px 10px; touch-action: manipulation; }
+            input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+            .small-button { font-size: 12px; padding: 4px 8px; }
+            .file-item label { font-size: 14px; cursor: pointer; }
         }
 
-        /* List Picker Dialog */
+        /* =====================================================================
+           Confirm / Rename / Delete dialog
+           ===================================================================== */
+        .confirm-dialog-overlay {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2300;
+        }
+        .confirm-dialog-overlay > .backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.5);
+        }
+        .confirm-dialog {
+            position: relative;
+            width: min(460px, 90vw);
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.2);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .confirm-dialog header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--color-border-muted);
+        }
+        .confirm-dialog header h3 {
+            margin: 0; font-size: 16px; font-weight: 600;
+        }
+        .confirm-dialog header button {
+            font-size: 20px; line-height: 1; padding: 4px 8px;
+            border-radius: 6px; border: none;
+            background: transparent; cursor: pointer;
+            color: var(--color-fg-muted);
+        }
+        .confirm-dialog header button:hover { background: var(--color-canvas-subtle); }
+        .confirm-dialog .body { padding: 20px; }
+        .confirm-dialog .body p { margin: 0 0 16px; color: var(--color-fg-default); line-height: 1.5; }
+        .confirm-dialog .body input {
+            width: 100%; padding: 5px 12px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px; font-size: 14px;
+        }
+        .confirm-dialog footer {
+            display: flex; gap: 8px; justify-content: flex-end;
+            padding: 16px 20px;
+            border-top: 1px solid var(--color-border-muted);
+        }
+        .confirm-dialog footer button {
+            padding: 5px 16px; border-radius: 6px;
+            font-size: 14px; font-weight: 500; cursor: pointer;
+        }
+        .confirm-dialog footer button.cancel {
+            background: var(--color-neutral-btn);
+            border-color: var(--color-neutral-btn-border);
+            color: var(--color-fg-default);
+        }
+        .confirm-dialog footer button.cancel:hover {
+            background: var(--color-neutral-btn-hover);
+        }
+        .confirm-dialog footer button.primary {
+            background: var(--color-success-btn);
+            border-color: rgba(31,35,40,0.15);
+            color: #ffffff;
+        }
+        .confirm-dialog footer button.primary:hover:not(:disabled) {
+            background: var(--color-success-btn-hover);
+        }
+        .confirm-dialog footer button.danger {
+            background: var(--color-danger-emphasis);
+            border-color: rgba(31,35,40,0.15);
+            color: #ffffff;
+        }
+        .confirm-dialog footer button.danger:hover:not(:disabled) {
+            background: #a40e26;
+        }
+        .confirm-dialog footer button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* =====================================================================
+           Notification overlay
+           ===================================================================== */
+        .notification-overlay {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1200;
+        }
+        .notification-overlay .backdrop {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+        }
+        .notification-overlay .dialog {
+            position: relative;
+            max-width: 90%; max-height: 90%; min-width: 468px;
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.2);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            z-index: 1201;
+        }
+        .notification-overlay .dialog-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-border-muted);
+        }
+        .notification-overlay .dialog-header-title {
+            font-weight: 600; font-size: 14px;
+        }
+        .notification-overlay .dialog-body {
+            padding: 12px 16px; overflow: auto; flex: 1;
+            background: var(--color-canvas-default);
+        }
+        .notification-overlay .dialog-body pre {
+            white-space: pre-wrap; word-break: break-word;
+            font-family: var(--font-mono); font-size: 13px;
+            margin: 0; padding: 12px;
+            background: var(--color-canvas-subtle);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            color: var(--color-fg-default);
+        }
+
+        /* =====================================================================
+           List Picker dialog
+           ===================================================================== */
         .list-picker-dialog {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
             z-index: 1250;
         }
         .list-picker-dialog .backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
         }
         .list-picker-dialog .dialog {
             position: relative;
             width: min(520px, 95vw);
-            background: #fff;
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
             border-radius: 6px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.2);
+            overflow: hidden; display: flex; flex-direction: column;
         }
         .list-picker-dialog header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 12px 16px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--color-border-muted);
         }
-        .list-picker-dialog header .title {
-            font-weight: 600;
-        }
-        .list-picker-dialog .body {
-            padding: 14px 16px;
-            overflow: auto;
-            max-height: 70vh;
-        }
+        .list-picker-dialog header .title { font-weight: 600; }
+        .list-picker-dialog .body { padding: 14px 16px; overflow: auto; max-height: 70vh; }
         .list-picker-dialog footer {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+            display: flex; gap: 8px; justify-content: flex-end;
             padding: 12px 16px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--color-border-muted);
         }
 
-        /* List Picker Dialog - Dark mode */
-        body.dark-mode .list-picker-dialog .backdrop {
-            background: rgba(0, 0, 0, 0.75);
-        }
-        body.dark-mode .list-picker-dialog .dialog {
-            background: #1e1e1e;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-        }
-        body.dark-mode .list-picker-dialog header {
-            border-bottom-color: #333333;
-        }
-        body.dark-mode .list-picker-dialog header .title {
-            color: #e0e0e0;
-        }
-        body.dark-mode .list-picker-dialog footer {
-            border-top-color: #333333;
-        }
-        /* Directory label style in middle pane */
-        .selected-files label.directory {
-            text-decoration: underline;
-        }
-
-        /* Login Dialog */
+        /* =====================================================================
+           Login dialog
+           ===================================================================== */
         .login-overlay {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
             z-index: 9999;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
         }
-
-        /* Hide app content when not authenticated */
-        body.auth-required .mobile-menu-btn {
-            display: none;
-        }
-
-        body.auth-required .toast-container {
-            display: none;
-        }
-
-        /* Show loading state before auth check */
-        body.auth-checking #app {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
+        body.auth-required .mobile-menu-btn { display: none; }
+        body.auth-required .toast-container { display: none; }
+        body.auth-checking #app { opacity: 0.3; pointer-events: none; }
         body.auth-checking::before {
-            content: 'Loading...';
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9998;
-            font-size: 18px;
-            color: #666;
+            content: 'Loading...'; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 9998;
+            font-size: 14px; color: var(--color-fg-muted);
         }
-
         .login-dialog {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            width: min(420px, 90vw);
+            background: var(--color-canvas-default);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(27,31,36,0.3);
+            width: min(440px, 90vw);
             overflow: hidden;
         }
-
         .login-dialog header {
-            padding: 24px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .login-dialog header h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .login-dialog .body {
-            padding: 24px;
-        }
-
-        .login-dialog .form-group {
-            margin-bottom: 20px;
-        }
-
-        .login-dialog .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .login-dialog .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        .login-dialog .form-group input:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: -1px;
-            border-color: #3b82f6;
-        }
-
-        .login-dialog .error-message {
-            padding: 12px;
-            background: #fee;
-            border: 1px solid #fcc;
-            border-radius: 6px;
-            color: #c00;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-
-        .login-dialog footer {
             padding: 16px 24px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
+            border-bottom: 1px solid var(--color-border-muted);
         }
-
-        .login-dialog footer button {
-            padding: 12px 24px;
-            background: #3b82f6;
-            color: #fff;
-            border: none;
+        .login-dialog header h2 {
+            margin: 0; font-size: 20px; font-weight: 600;
+            color: var(--color-fg-default);
+        }
+        .login-dialog .body { padding: 20px 24px; }
+        .login-dialog .form-group { margin-bottom: 16px; }
+        .login-dialog .form-group label {
+            display: block; margin-bottom: 6px;
+            font-weight: 600; font-size: 14px;
+            color: var(--color-fg-default);
+        }
+        .login-dialog .form-group input {
+            width: 100%; padding: 5px 12px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px; font-size: 14px;
+        }
+        .login-dialog .error-message {
+            padding: 8px 12px;
+            background: var(--color-danger-subtle);
+            border: 1px solid rgba(255,129,130,0.4);
             border-radius: 6px;
-            font-size: 14px;
+            color: var(--color-danger-fg);
+            margin-bottom: 16px; font-size: 14px;
+        }
+        .login-dialog footer {
+            padding: 12px 24px;
+            border-top: 1px solid var(--color-border-muted);
+            display: flex; justify-content: flex-end;
+        }
+        .login-dialog footer button {
+            padding: 5px 20px;
+            background: var(--color-success-btn);
+            border-color: rgba(31,35,40,0.15);
+            color: #ffffff;
             font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
         }
-
         .login-dialog footer button:hover:not(:disabled) {
-            background: #2563eb;
+            background: var(--color-success-btn-hover);
         }
-
         .login-dialog footer button:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
+            opacity: 0.5; cursor: not-allowed;
         }
 
-        /* Dark mode for login dialog */
-        body.dark-mode .login-dialog {
-            background: #1e1e1e;
+        /* =====================================================================
+           Scrollbar (webkit)
+           ===================================================================== */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-border-default);
+            border-radius: 4px;
         }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-fg-muted); }
 
-        body.dark-mode .login-dialog header {
-            border-bottom-color: #333;
-        }
-
-        body.dark-mode .login-dialog header h2 {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .login-dialog .form-group label {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .login-dialog .form-group input {
-            background: #2a2a2a;
-            border-color: #404040;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .login-dialog .error-message {
-            background: #3a1010;
-            border-color: #6a2020;
-            color: #ff6b6b;
-        }
-
-        body.dark-mode .login-dialog footer {
-            border-top-color: #333;
-        }
     </style>
 </head>
 <body>
@@ -1653,7 +1232,7 @@
                     <div class="dialog">
                         <header class="dialog-header">
                             <div class="dialog-header-title">{{ title }}</div>
-                            <button @click="close" aria-label="Close" style="font-size:20px; line-height:1; padding:6px 10px; border-radius:6px; border:1px solid #ddd; cursor:pointer;">×</button>
+                            <button @click="close" aria-label="Close" style="font-size:20px; line-height:1; padding:4px 8px; border-radius:6px; border:1px solid var(--color-border-default); background:transparent; cursor:pointer; color:var(--color-fg-muted);">×</button>
                         </header>
                         <div class="dialog-body">
                             <pre v-text="content"></pre>
@@ -2680,7 +2259,7 @@
                         <header class="dialog-header">
                             <div class="dialog-header-title">File Links</div>
                             <button @click="onClose" aria-label="Close"
-                                    style="font-size:20px; line-height:1; padding:6px 10px; border-radius:6px; border:1px solid #ddd; cursor:pointer;">×</button>
+                                    style="font-size:20px; line-height:1; padding:4px 8px; border-radius:6px; border:1px solid var(--color-border-default); background:transparent; cursor:pointer; color:var(--color-fg-muted);">×</button>
                         </header>
                         <div class="dialog-body" style="display: flex; flex-direction: column; gap: 12px;">
                             <div style="display: flex; gap: 16px; align-items: center;">
@@ -2725,7 +2304,7 @@
                             <div style="display: flex; justify-content: flex-end; gap: 10px;">
                                 <button @click="onClose" style="padding: 8px 16px;">Close</button>
                                 <button @click="onCopy" :disabled="!links || loading"
-                                        style="padding: 8px 16px; background: #3b82f6; color: white; border-color: #3b82f6;">
+                                        style="padding: 5px 16px; background: var(--color-success-btn); color: #fff; border-color: rgba(31,35,40,0.15);">
                                     Copy
                                 </button>
                             </div>
