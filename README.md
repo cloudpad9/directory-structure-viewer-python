@@ -30,13 +30,33 @@ curl -fsSL https://raw.githubusercontent.com/cloudpad9/directory-structure-viewe
 
 This creates a self-contained installation at `~/.dsviewer/` with its own Python virtual environment. No `sudo` required.
 
+The installer will prompt you to create an admin username and password on first install.
+
 Then open a new terminal (or `source ~/.bashrc`) and run:
 
 ```bash
 dsviewer
 ```
 
-The app starts at **http://localhost:9876**. Default login: `admin` / `admin123`.
+The app starts at **http://localhost:9876**.
+
+---
+
+# Update
+
+To update to the latest version, run either of the following from any terminal on the machine:
+
+```bash
+dsviewer --update
+```
+
+Or directly with curl:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cloudpad9/directory-structure-viewer-python/main/update.sh | bash
+```
+
+The update script replaces only the application code — your data directory (`~/.dsviewer/data/`) and credentials are preserved. If a systemd service is running, it is stopped before the update and restarted automatically afterward.
 
 ---
 
@@ -65,6 +85,7 @@ Options:
   --open               Open browser on start
   --version            Show version and exit
   --change-password    Change a user's password
+  --update             Update to the latest version from GitHub
 ```
 
 Examples:
@@ -81,6 +102,9 @@ dsviewer --no-auth
 
 # Change the admin password
 dsviewer --change-password
+
+# Update to latest version
+dsviewer --update
 ```
 
 ---
@@ -131,7 +155,7 @@ The app uses token-based authentication with bcrypt-hashed passwords.
 3. Token is sent with every subsequent request
 4. Sessions auto-expire and are cleaned up automatically
 
-Default credentials: `admin` / `admin123`. Change the password after first login:
+Change the password at any time:
 
 ```bash
 dsviewer --change-password
@@ -158,7 +182,7 @@ After=network.target
 [Service]
 Type=simple
 User=youruser
-ExecStart=/home/youruser/.dsviewer/bin/dsviewer --port 8080
+ExecStart=/home/youruser/.dsviewer/bin/dsviewer --port 9876
 Restart=always
 RestartSec=5
 
@@ -170,6 +194,8 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 sudo systemctl enable --now dsviewer
 ```
+
+For a full production setup including Cloudflare Tunnel and custom domain, see [docs/PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md).
 
 ---
 
@@ -190,9 +216,13 @@ All data is stored in `~/.dsviewer/data/` as plain JSON files. No database.
 ```
 directory-structure-viewer-python/
 ├── install.sh
+├── update.sh
 ├── pyproject.toml
 ├── README.md
 ├── LICENSE
+├── docs/
+│   ├── DEV_SETUP.md
+│   └── PRODUCTION_SETUP.md
 ├── src/
 │   └── dsviewer/
 │       ├── __init__.py
@@ -212,6 +242,15 @@ directory-structure-viewer-python/
 │           └── index.html
 └── tests/
 ```
+
+---
+
+# Documentation
+
+| Document | Description |
+| --- | --- |
+| [docs/DEV_SETUP.md](docs/DEV_SETUP.md) | Clone the repo, install dependencies, run tests, and manually verify all features locally |
+| [docs/PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md) | Deploy as a systemd service, expose via Cloudflare Tunnel with a custom domain |
 
 ---
 
