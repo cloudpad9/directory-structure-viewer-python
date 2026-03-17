@@ -80,6 +80,63 @@ info "Installing Python dependencies..."
 # Install the package itself in editable mode
 "$VENV_DIR/bin/pip" install --quiet -e "$INSTALL_DIR/src"
 
+# ── Admin credentials ──────────────────────────────────────────────────────
+
+# Chỉ prompt khi chưa có users.json (lần cài đầu tiên)
+# Khi update/reinstall, giữ nguyên credentials hiện tại
+if [ ! -f "$INSTALL_DIR/data/users.json" ]; then
+    echo ""
+    echo "  ─────────────────────────────────────────"
+    echo "  Create your admin account"
+    echo "  ─────────────────────────────────────────"
+    echo ""
+
+    # Prompt username
+    while true; do
+        printf "  Username: "
+        read -r ADMIN_USER
+        ADMIN_USER=$(echo "$ADMIN_USER" | tr -d '[:space:]')
+        if [ -z "$ADMIN_USER" ]; then
+            echo "  Username cannot be empty."
+        else
+            break
+        fi
+    done
+
+    # Prompt password với confirm
+    while true; do
+        printf "  Password (min 6 chars): "
+        read -rs ADMIN_PASS
+        echo ""
+        if [ ${#ADMIN_PASS} -lt 6 ]; then
+            echo "  Password must be at least 6 characters."
+            continue
+        fi
+        printf "  Confirm password: "
+        read -rs ADMIN_PASS_CONFIRM
+        echo ""
+        if [ "$ADMIN_PASS" != "$ADMIN_PASS_CONFIRM" ]; then
+            echo "  Passwords do not match. Try again."
+            continue
+        fi
+        break
+    done
+
+    echo ""
+    info "Creating admin account..."
+    "$VENV_DIR/bin/python" -m dsviewer.scripts.create_user \
+        --data-dir "$INSTALL_DIR/data" \
+        --username "$ADMIN_USER" \
+        --password "$ADMIN_PASS"
+
+    # Xoá biến khỏi memory ngay sau khi dùng
+    unset ADMIN_PASS ADMIN_PASS_CONFIRM
+    ADMIN_LOGIN="$ADMIN_USER"
+else
+    info "Existing credentials preserved (users.json already exists)"
+    ADMIN_LOGIN="(your existing username)"
+fi
+
 # ── Wrapper script ─────────────────────────────────────────────────────────
 
 cat > "$BIN_DIR/dsviewer" << 'EOF'
@@ -99,7 +156,7 @@ fi
 
 # ── Shell PATH hint ────────────────────────────────────────────────────────
 
-# Thêm vào cả .bashrc và .zshrc nếu file tồn tại (không chỉ shell hiện tại)
+# Thêm vào cả .bashrc và .zshrc nếu file tồn tại
 for RC_FILE in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if [ -f "$RC_FILE" ] && ! grep -q "dsviewer" "$RC_FILE" 2>/dev/null; then
         echo "" >> "$RC_FILE"
@@ -117,7 +174,7 @@ echo ""
 echo "  To start:  dsviewer"
 echo "  Options:   dsviewer --port 8080 --no-auth --open"
 echo "  Data dir:  ~/.dsviewer/data/"
-echo "  Default login: admin / admin123"
+echo "  Login:     $ADMIN_LOGIN"
 echo ""
 echo "  (Run 'dsviewer --change-password' to update the password)"
 echo ""
