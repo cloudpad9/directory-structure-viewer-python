@@ -7,6 +7,7 @@ import webbrowser
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -24,6 +25,17 @@ def create_app(config: AppConfig) -> FastAPI:
     _api.set_config(config)
 
     app = FastAPI(title="Directory Structure Viewer", version="1.0.0")
+
+    # -----------------------------------------------------------------------
+    # CORS — allow all origins (local developer tool)
+    # -----------------------------------------------------------------------
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # -----------------------------------------------------------------------
     # Global exception handler — always return JSON

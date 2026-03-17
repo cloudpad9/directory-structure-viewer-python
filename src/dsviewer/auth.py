@@ -6,15 +6,8 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-try:
-    import bcrypt as _bcrypt_lib  # type: ignore[import]
-except ImportError:  # pragma: no cover
-    _bcrypt_lib = None  # type: ignore[assignment]
-
-try:
-    from fastapi import Request  # type: ignore[import]
-except ImportError:  # pragma: no cover
-    Request = None  # type: ignore[assignment,misc]
+import bcrypt as _bcrypt_lib
+from fastapi import Request
 
 from dsviewer.config import safe_write_json
 

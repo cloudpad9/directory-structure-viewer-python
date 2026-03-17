@@ -17,6 +17,9 @@ PATTERNS: dict[str, re.Pattern] = {
         r"\b(?:(const|let|var)\s+)([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*(?:async\s+)?"
         r"(?:\(\s*.*?\s*\)\s*=>|([a-zA-Z_$][0-9a-zA-Z_$]*\s*=>))"
     ),
+    "CONST_FUNCTION": re.compile(
+        r"\b(?:export\s+)?(?:const|let|var)\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*=\s*(?:async\s+)?function\s*\("
+    ),
     "FUNCTION": re.compile(
         r"\b(?:async\s+)?function\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\("
     ),

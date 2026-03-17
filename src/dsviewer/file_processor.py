@@ -11,6 +11,7 @@ from __future__ import annotations
 import io
 import mimetypes
 import os
+import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -45,13 +46,14 @@ def list_files(path: str) -> list[dict]:
 
     for dirpath, dirnames, filenames in os.walk(path, topdown=True):
         # Prune excluded directories in-place (modifies traversal)
-        dirnames[:] = [d for d in dirnames if d not in _EXCLUDE_DIRS]
+        # Sort in-place để đảm bảo order nhất quán trên mọi OS
+        dirnames[:] = sorted(d for d in dirnames if d not in _EXCLUDE_DIRS)
 
-        # Emit the directory itself (SELF_FIRST — skip root to avoid emitting path twice)
+        # Emit the directory itself (SELF_FIRST — skip root để tránh emit path gốc 2 lần)
         if dirpath != path:
             results.append({"path": dirpath, "type": "directory"})
 
-        for fname in filenames:
+        for fname in sorted(filenames):
             results.append({"path": os.path.join(dirpath, fname), "type": "file"})
 
     return results
@@ -342,12 +344,45 @@ def _get_block_infos(path: str) -> list[dict]:
 
     if ext == "php":
         sigs = php_helper.get_block_signatures(content)
+        return block_helpers.get_block_infos_from_signatures(content, sigs)
     elif ext == "md":
-        sigs = markdown_helper.get_block_signatures(content)
+        # Markdown dùng heading-extent model, không dùng brace matching
+        return _get_markdown_block_infos(content)
     else:
         sigs = js_helper.get_block_signatures(content)
+        return block_helpers.get_block_infos_from_signatures(content, sigs)
 
-    return block_helpers.get_block_infos_from_signatures(content, sigs)
+
+def _get_markdown_block_infos(content: str) -> list[dict]:
+    """Build block_infos cho markdown dùng heading-extent extraction."""
+    sigs = markdown_helper.get_block_signatures(content)
+    block_infos: list[dict] = []
+
+    for i, sig_info in enumerate(sigs):
+        signature = sig_info[0]
+        offset = sig_info[1]
+        line_number = sig_info[2]
+
+        # Dùng markdown-specific extractor thay vì brace matching
+        block_content = markdown_helper._get_block_content_from_signature(content, signature, offset)
+        end_pos = offset + len(block_content)
+
+        parent_offsets: list[int] = []
+        for j in range(i):
+            existing_offset = sigs[j][1]
+            if existing_offset < offset and block_infos[j]["endPos"] > end_pos:
+                parent_offsets.append(existing_offset)
+                parent_offsets.extend(block_infos[j]["parentOffsets"])
+
+        block_infos.append({
+            "signature": signature,
+            "offset": offset,
+            "endPos": end_pos,
+            "lineNumber": line_number,
+            "parentOffsets": list(dict.fromkeys(parent_offsets)),
+        })
+
+    return block_infos
 
 
 def _expand_with_parent_offsets(block_infos: list[dict], selected_offsets: list) -> list:
@@ -425,7 +460,6 @@ def _count_occurrences(haystack: str, pattern: str, case_sensitive: bool, use_re
         return len(indices), indices
 
     # Literal UTF-8-safe search
-    import re
     needle = pattern if case_sensitive else pattern.lower()
     text = haystack if case_sensitive else haystack.lower()
     pos = 0
@@ -450,7 +484,6 @@ def _replace_all(
     case_sensitive: bool,
     use_regex: bool,
 ) -> tuple[str, int]:
-    import re
     if not pattern:
         return subject, 0
 
@@ -487,7 +520,3 @@ def _trim_preview(line: str) -> str:
     if len(line) > 140:
         return line[:140] + "…"
     return line
-
-
-# Import re at module level for use in nested helpers
-import re  # noqa: E402  (after function defs that reference it inline)

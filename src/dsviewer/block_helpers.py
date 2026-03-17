@@ -27,7 +27,12 @@ def get_block_infos_from_signatures(content: str, signatures: list) -> list[dict
         block_type = sig_info[3] if len(sig_info) > 3 else ""
 
         block_content = get_block_content(content, signature, offset, block_type)
-        end_pos = offset + len(block_content)
+        # block_content bắt đầu từ { (không phải từ offset của match),
+        # nên tìm vị trí thực của block_content trong content để tính end_pos chính xác
+        actual_start = content.find(block_content, offset)
+        if actual_start == -1:
+            actual_start = offset
+        end_pos = actual_start + len(block_content)
 
         parent_offsets: list[int] = []
         for j in range(i):
@@ -81,11 +86,13 @@ def _get_block_content_style(content: str, signature: str, start_pos: int) -> st
 def get_block_content_function(content: str, signature: str, start_pos: int) -> str:
     """
     Brace-count walk — port of PHP getBlockContent_Function().
+    Scan forward từ start_pos đến { đầu tiên, sau đó track brace depth.
     Tracks single/double quote state; resets on newline (same as PHP).
     """
     single_quote_count = 0
     double_quote_count = 0
     brace_count = 0
+    brace_start = -1
     n = len(content)
 
     for i in range(start_pos, n):
@@ -94,11 +101,14 @@ def get_block_content_function(content: str, signature: str, start_pos: int) -> 
         if c == "{":
             if not single_quote_count and not double_quote_count:
                 brace_count += 1
+                # Ghi nhận vị trí { đầu tiên để làm điểm bắt đầu kết quả
+                if brace_start == -1:
+                    brace_start = i
         elif c == "}":
             if not single_quote_count and not double_quote_count:
                 brace_count -= 1
-            if brace_count == 0:
-                return content[start_pos: i + 1]
+            if brace_count == 0 and brace_start != -1:
+                return content[brace_start: i + 1]
         elif c == "'":
             single_quote_count = 0 if single_quote_count else 1
         elif c == '"':

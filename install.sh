@@ -99,18 +99,15 @@ fi
 
 # ── Shell PATH hint ────────────────────────────────────────────────────────
 
-SHELL_RC=""
-case "$SHELL" in
-    */bash) SHELL_RC="$HOME/.bashrc" ;;
-    */zsh)  SHELL_RC="$HOME/.zshrc"  ;;
-esac
-
-if [ -n "$SHELL_RC" ] && ! grep -q "dsviewer" "$SHELL_RC" 2>/dev/null; then
-    echo "" >> "$SHELL_RC"
-    echo "# dsviewer" >> "$SHELL_RC"
-    echo "export PATH=\"\$HOME/.dsviewer/bin:\$PATH\"" >> "$SHELL_RC"
-    info "Added ~/.dsviewer/bin to PATH in $SHELL_RC"
-fi
+# Thêm vào cả .bashrc và .zshrc nếu file tồn tại (không chỉ shell hiện tại)
+for RC_FILE in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    if [ -f "$RC_FILE" ] && ! grep -q "dsviewer" "$RC_FILE" 2>/dev/null; then
+        echo "" >> "$RC_FILE"
+        echo "# dsviewer" >> "$RC_FILE"
+        echo "export PATH=\"\$HOME/.dsviewer/bin:\$PATH\"" >> "$RC_FILE"
+        info "Added ~/.dsviewer/bin to PATH in $RC_FILE"
+    fi
+done
 
 # ── Done ──────────────────────────────────────────────────────────────────
 
